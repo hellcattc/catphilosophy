@@ -1,5 +1,6 @@
 img {
     align-self: center;
-    height: 80%;
-    width: auto;
+    height: auto;
+    width: 90%;
+    padding: 25px 0;
 }
