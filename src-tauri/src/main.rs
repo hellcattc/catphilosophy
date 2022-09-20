@@ -16,8 +16,21 @@ use serde_json::json;
 #[derive(Debug)]
 struct Post {
     img_url: String,
-    quote_text: String
+    quote_data: Quote 
 }
+
+#[derive(Debug)]
+#[derive(Serialize)]
+pub enum Quote {
+    QuoteWithAuthor {
+        quote: String,
+        author: String,
+    },
+    NamelessQuote {
+        quote: String
+    }
+}
+
 
 pub struct ConnectionKeeper {
     client: reqwest::Client,
@@ -25,7 +38,13 @@ pub struct ConnectionKeeper {
     text_html: String
 }
 
+fn inner_function(item: ElementRef) -> String {
+    return item.inner_html()
+}
 
+fn take_nth_element_from_vec(vec: &Vec<String>, n: usize) -> String {
+    vec.clone().into_iter().nth(n).unwrap()
+}
 
 impl ConnectionKeeper {
     pub fn new() -> Self {
@@ -41,24 +60,25 @@ impl ConnectionKeeper {
         return response.text().await.unwrap()
     }
 
-    pub async fn get_photos(&mut self, url: &str) -> Option<String> {
+    pub async fn get_photos(&mut self, url: &str) -> String {
         if self.photos_html.is_empty() {
             self.photos_html = self.connect_and_get_html(url).await;
         }
         let document = Html::parse_document(&self.photos_html);
         let imgs_selector = Selector::parse("img").unwrap();
-        let img = document.select(&imgs_selector).collect::<Vec<ElementRef>>().choose(&mut rand::thread_rng()).unwrap()
-        .value().attrs().find(|(x, _)| *x == "src").expect("Wrong attrs");
-        print!("{:?}", img);
-        let img_src = img.1.to_string();
-        if img_src.is_empty() {
-            return None
-        } else {
-            return Some(img_src)
+        let all_imgs = document.select(&imgs_selector).collect::<Vec<ElementRef>>();
+        loop {
+            let random_img = all_imgs.choose(&mut rand::thread_rng()).unwrap()
+            .value().attrs().find(|(x, _)| *x == "src").expect("Wrong attrs");
+            print!("{:?}", random_img);
+            let img_src = random_img.1.to_string();
+            if !img_src.is_empty() {
+                return img_src
+            }
         }
     }
 
-    pub async fn get_text(&mut self, url: &str) -> Option<String> {
+    pub async fn get_text(&mut self, url: &str) -> Quote {
         if self.text_html.is_empty() {
             self.text_html = self.connect_and_get_html(url).await;
         }
@@ -66,13 +86,20 @@ impl ConnectionKeeper {
         let div_selector = Selector::parse("div.su-note").unwrap();
         let text_selector = Selector::parse("p").unwrap();
         let all_divs = document.select(&div_selector).collect::<Vec<ElementRef>>();
-        let random_div = all_divs.choose(&mut rand::thread_rng()).unwrap();
-        let p_inner = random_div.select(&text_selector).collect::<Vec<ElementRef>>()[0].inner_html();
-        if p_inner.is_empty() {
-            return None
-        } else {
-            return Some(p_inner)
-        }
+        loop {
+            let random_div = all_divs.choose(&mut rand::thread_rng()).unwrap();
+            let mut p_tags_inner = random_div.select(&text_selector).map(|x| inner_function(x)).collect::<Vec<String>>();
+            if p_tags_inner.len() == 2 {
+                if !p_tags_inner[0].is_empty() && !p_tags_inner[1].is_empty() {
+                    return Quote::QuoteWithAuthor{quote: take_nth_element_from_vec(&p_tags_inner, 0), author: take_nth_element_from_vec(&p_tags_inner, 0)}
+                }
+            }
+            else {
+                if !p_tags_inner[0].is_empty() {
+                    return Quote::NamelessQuote{quote: p_tags_inner.remove(0)}
+                }
+            }
+        };
     }
 }
 
@@ -84,17 +111,9 @@ pub const QUOTES_URL: &str = "https://citatnica.ru/citaty/tsitaty-velikih-filoso
 async unsafe fn get_text_and_photos(post_count: u32) -> serde_json::Value {
     let mut posts:Vec<Post> = Vec::new();
     for _ in 0..post_count {
-        let mut photo = CONNECTION.get_photos(CAT_PHOTOS_URL).await;
-        let mut quote = CONNECTION.get_text(QUOTES_URL).await;
-        while quote.is_none() {
-            quote = CONNECTION.get_text(QUOTES_URL).await;
-            println!("Relaunched quote fetch")
-        }
-        while photo.is_none() {
-            photo = CONNECTION.get_photos(CAT_PHOTOS_URL).await;
-            println!("Relaunched photo fetch")
-        }
-        posts.push(Post{img_url: photo.unwrap(), quote_text: quote.unwrap()})
+        let photo = CONNECTION.get_photos(CAT_PHOTOS_URL).await;
+        let quote = CONNECTION.get_text(QUOTES_URL).await;
+        posts.push(Post{img_url: photo, quote_data: quote})
     }
     println!("Here are posts");
     println!("{:?}", posts);
