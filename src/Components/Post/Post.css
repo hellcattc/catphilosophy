@@ -8,6 +8,11 @@
     flex-direction: column;
 }
 
+.inner-container {
+    width: 90%;
+    margin: auto auto;
+}
+
 p {
-    margin: 25px 0;
+    margin: 20px 0;
 }

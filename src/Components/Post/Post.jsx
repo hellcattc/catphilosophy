@@ -1,14 +1,18 @@
-import React from 'react'
-import "./Post.css"
-import MyImg from './MyImg'
+import React from 'react';
+import './Post.css';
+import MyImg from './MyImg';
 
-const Post = (props) => {
+// eslint-disable-next-line react/prop-types
+function Post({ imgSrc, quote, author }) {
   return (
-    <div className = "post-container">
-        <p style = {{textAlign: 'center'}}>{props.quote}</p>
-        <MyImg src = {props.imgSrc}/>
+    <div className="post-container">
+      <div className="inner-container">
+        <p>{quote}</p>
+        <p style={{ textAlign: 'right' }}>{author}</p>
+        <MyImg src={imgSrc} />
+      </div>
     </div>
-  )
+  );
 }
 
-export default Post
+export default Post;

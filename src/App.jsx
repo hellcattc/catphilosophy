@@ -8,6 +8,7 @@ import Post from './Components/Post/Post';
 function App() {
   const [contentFeed, setContentFeed] = useState([]);
   const [postsPage, setPostsPage] = useState(0);
+  const [loadingPosts, setLoadingPosts] = useState(false);
   const loader = useRef(0);
 
   const handleObserver = useCallback((entries) => {
@@ -28,21 +29,17 @@ function App() {
   }, [handleObserver]);
 
   async function getData() {
-    await invoke('get_text_and_photos', { postCount: 3 })
-      .then((res) => {
-        console.log('This are res');
-        console.log(res);
-        const postArray = res.map((item) => (
-          {
-            img: item.img_url,
-            quote: item.quote_text,
-          }
-        ));
-        setContentFeed([...contentFeed, ...postArray]);
-        console.log('Updated state array');
-        console.log(contentFeed);
-      })
-      .catch((e) => console.log(e));
+    if (!loadingPosts) {
+      setLoadingPosts(true);
+      await invoke('get_text_and_photos', { postCount: 3 })
+        .then((res) => {
+          const postArray = res;
+          console.log(res);
+          setContentFeed([...contentFeed, ...postArray]);
+          setLoadingPosts(false);
+        })
+        .catch((e) => console.log(e));
+    }
   }
 
   useEffect(() => {
@@ -54,17 +51,17 @@ function App() {
   }, [postsPage]);
 
   const contentFeedPosts = contentFeed.map((obj, i) => (
+    <Post
     // eslint-disable-next-line react/no-array-index-key
-    <Post key={i} imgSrc={obj.img} quote={obj.quote} />
+      key={i}
+      imgSrc={obj.imgUrl}
+      quote={obj.quoteData.quote}
+      author={obj.quoteData.author ? obj.quoteData.author : undefined}
+    />
   ));
 
   return (
     <div>
-      <p>
-        Length of photosContent:
-        {' '}
-        {contentFeed.length}
-      </p>
       {contentFeedPosts}
       <div ref={loader} />
     </div>

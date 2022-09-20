@@ -9,18 +9,20 @@ use std::{vec};
 use once_cell::sync::Lazy;
 use scraper::{Html, Selector, ElementRef};
 use rand::seq::SliceRandom;
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 use serde_json::json;
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 #[derive(Debug)]
+#[serde(rename_all = "camelCase")]
 struct Post {
     img_url: String,
     quote_data: Quote 
 }
 
 #[derive(Debug)]
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
+#[serde(untagged)]
 pub enum Quote {
     QuoteWithAuthor {
         quote: String,
@@ -83,20 +85,21 @@ impl ConnectionKeeper {
             self.text_html = self.connect_and_get_html(url).await;
         }
         let document = Html::parse_document(&self.text_html);
-        let div_selector = Selector::parse("div.su-note").unwrap();
+        let div_selector = Selector::parse("div.su-note-inner").unwrap();
         let text_selector = Selector::parse("p").unwrap();
         let all_divs = document.select(&div_selector).collect::<Vec<ElementRef>>();
         loop {
             let random_div = all_divs.choose(&mut rand::thread_rng()).unwrap();
-            let mut p_tags_inner = random_div.select(&text_selector).map(|x| inner_function(x)).collect::<Vec<String>>();
+            let p_tags_inner = random_div.select(&text_selector).map(|x| inner_function(x)).collect::<Vec<String>>();
+            println!("{:?}", p_tags_inner);
             if p_tags_inner.len() == 2 {
                 if !p_tags_inner[0].is_empty() && !p_tags_inner[1].is_empty() {
-                    return Quote::QuoteWithAuthor{quote: take_nth_element_from_vec(&p_tags_inner, 0), author: take_nth_element_from_vec(&p_tags_inner, 0)}
+                    return Quote::QuoteWithAuthor{quote: take_nth_element_from_vec(&p_tags_inner, 0), author: take_nth_element_from_vec(&p_tags_inner, 1)}
                 }
             }
             else {
                 if !p_tags_inner[0].is_empty() {
-                    return Quote::NamelessQuote{quote: p_tags_inner.remove(0)}
+                    return Quote::NamelessQuote{quote: take_nth_element_from_vec(&p_tags_inner, 0)}
                 }
             }
         };
@@ -110,6 +113,7 @@ pub const QUOTES_URL: &str = "https://citatnica.ru/citaty/tsitaty-velikih-filoso
 #[tauri::command]
 async unsafe fn get_text_and_photos(post_count: u32) -> serde_json::Value {
     let mut posts:Vec<Post> = Vec::new();
+    println!("Called backend");
     for _ in 0..post_count {
         let photo = CONNECTION.get_photos(CAT_PHOTOS_URL).await;
         let quote = CONNECTION.get_text(QUOTES_URL).await;
