@@ -1,25 +1,29 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
 import "./App.css";
 import Post from "./Components/Post/Post.jsx";
 
-
-
 function App() {
   const [contentFeed, setContentFeed] = useState([])
-  const [loadingPosts, setLoadingPosts] = useState(0)
+  const [postsPage, setPostsPage] = useState(0)
+  const loader = useRef(0)
 
-  const handleScroll = (event) => {
-    const windowHeight = "innerHeight" in window ? window.innerHeight : document.documentElement.offsetHeight;
-    const body = document.body;
-    const html = document.documentElement;
-    const docHeight = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
-    const windowBottom = windowHeight + window.pageYOffset;
-    if (windowBottom >= docHeight) {
-        setLoadingPosts(loadingPosts => loadingPosts+1)
-        console.log(loadingPosts)
+  const handleObserver = useCallback((entries) => {
+    const target = entries[0];
+    if (target.isIntersecting) {
+      setPostsPage((prev) => prev + 1);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    const option = {
+      root: null,
+      rootMargin: "20px",
+      threshold: 0
+    };
+    const observer = new IntersectionObserver(handleObserver, option);
+    if (loader.current) observer.observe(loader.current);
+  }, [handleObserver]);
 
   async function get_data() {
       await invoke("get_text_and_photos", {postCount: 3})
@@ -29,23 +33,22 @@ function App() {
         let postArray = [];
         res.map((item) => {
           postArray = [...postArray, {img: item.img_url, quote: item.quote_text}]
-          console.log("changed state")
-          console.log(contentFeed)
         })
         setContentFeed([...contentFeed, ...postArray])
+        console.log("Updated state array")
+        console.log(contentFeed)
       })
       .catch((e) => console.log(e));
     }
     
 
   useEffect(() => {
-    document.addEventListener('scroll', handleScroll)
     get_data()
   }, [])
 
   useEffect(() => {
     get_data()
-  }, [loadingPosts])
+  }, [postsPage])
 
   const contentFeedPosts = contentFeed.map((obj, i) => {
     return <Post key = {i} imgSrc = {obj.img} quote = {obj.quote}/>
@@ -55,6 +58,7 @@ function App() {
     <div>
       <p>Length of photosContent: {contentFeed.length}</p>
       {contentFeedPosts}
+      <div ref = {loader}></div>
     </div>
   );
 }
