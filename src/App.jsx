@@ -33,6 +33,7 @@ function App() {
       setLoadingPosts(true);
       await invoke('get_text_and_photos', { postCount: 3 })
         .then((res) => {
+          console.log("Called backend");
           const postArray = res;
           console.log(res);
           setContentFeed([...contentFeed, ...postArray]);
@@ -41,10 +42,6 @@ function App() {
         .catch((e) => console.log(e));
     }
   }
-
-  useEffect(() => {
-    getData();
-  }, []);
 
   useEffect(() => {
     getData();
