@@ -84,10 +84,12 @@ impl ConnectionKeeper {
         if self.text_html.is_empty() {
             self.text_html = self.connect_and_get_html(url).await;
         }
+
         let document = Html::parse_document(&self.text_html);
         let div_selector = Selector::parse("div.su-note-inner").unwrap();
         let text_selector = Selector::parse("p").unwrap();
         let all_divs = document.select(&div_selector).collect::<Vec<ElementRef>>();
+
         loop {
             let random_div = all_divs.choose(&mut rand::thread_rng()).unwrap();
             let p_tags_inner = random_div.select(&text_selector).map(|x| inner_function(x)).collect::<Vec<String>>();
@@ -97,7 +99,7 @@ impl ConnectionKeeper {
                     return Quote::QuoteWithAuthor{quote: take_nth_element_from_vec(&p_tags_inner, 0), author: take_nth_element_from_vec(&p_tags_inner, 1)}
                 }
             }
-            else {
+            else if p_tags_inner.len() == 1 {
                 if !p_tags_inner[0].is_empty() {
                     return Quote::NamelessQuote{quote: take_nth_element_from_vec(&p_tags_inner, 0)}
                 }

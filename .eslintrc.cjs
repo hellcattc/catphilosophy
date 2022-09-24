@@ -6,6 +6,7 @@ module.exports = {
   extends: [
     'plugin:react/recommended',
     'airbnb',
+    'plugin:react-hooks/recommended',
   ],
   overrides: [
   ],
@@ -19,5 +20,6 @@ module.exports = {
   rules: {
     'linebreak-style': 'off',
     'no-console': 'off',
+    quotes: 'off',
   },
 };

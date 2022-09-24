@@ -8,13 +8,13 @@ import Post from './Components/Post/Post';
 function App() {
   const [contentFeed, setContentFeed] = useState([]);
   const [postsPage, setPostsPage] = useState(0);
-  const [loadingPosts, setLoadingPosts] = useState(false);
   const loader = useRef(0);
 
   const handleObserver = useCallback((entries) => {
     const target = entries[0];
     if (target.isIntersecting) {
       setPostsPage((prev) => prev + 1);
+      console.log('intersected');
     }
   }, []);
 
@@ -28,23 +28,22 @@ function App() {
     if (loader.current) observer.observe(loader.current);
   }, [handleObserver]);
 
-  async function getData() {
-    if (!loadingPosts) {
-      setLoadingPosts(true);
+  useEffect(() => {
+    let loading = true;
+
+    async function getData() {
       await invoke('get_text_and_photos', { postCount: 3 })
         .then((res) => {
-          console.log("Called backend");
           const postArray = res;
           console.log(res);
-          setContentFeed([...contentFeed, ...postArray]);
-          setLoadingPosts(false);
+          if (loading) setContentFeed((prev) => [...prev, ...postArray]);
         })
         .catch((e) => console.log(e));
     }
-  }
 
-  useEffect(() => {
     getData();
+
+    return () => { loading = false; };
   }, [postsPage]);
 
   const contentFeedPosts = contentFeed.map((obj, i) => (
