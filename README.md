@@ -1,7 +1,8 @@
-# Tauri + React
+Simple Tauri-React app, which implements parsing HTML pages on Rust, getting random cat photos & philosophers quotes, then displaying it on the page with infinite scrolling.
 
-This template should help get you started developing with Tauri and React in Vite.
+TODO'S 
 
-## Recommended IDE Setup
+Saving posts in local storage
+Window navigate buttons(close, etc)
+Displaying only unique images & quotes (hard task, involves advanced Rust knowledge (due to complexity of borrow system) which I don't have right now)
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
