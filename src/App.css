@@ -1,4 +1,74 @@
-div {
+/* pt-sans-narrow-regular - cyrillic */
+/* pt-sans-narrow-regular - cyrillic */
+@font-face {
+    font-family: 'PT Sans Narrow';
+    font-style: normal;
+    font-weight: 400;
+    src: local(''),
+         url('./fonts/pt-sans-narrow-v17-cyrillic-regular.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+         url('../fonts/pt-sans-narrow-v17-cyrillic-regular.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+  }
+  /* pt-sans-narrow-700 - cyrillic */
+  @font-face {
+    font-family: 'PT Sans Narrow';
+    font-style: normal;
+    font-weight: 700;
+    src: local(''),
+         url('./fonts/pt-sans-narrow-v17-cyrillic-700.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+         url('./fonts/pt-sans-narrow-v17-cyrillic-700.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+  }
+
+  /* bitter-regular - cyrillic */
+@font-face {
+    font-family: 'Bitter';
+    font-style: normal;
+    font-weight: 400;
+    src: local(''),
+         url('./fonts/bitter-v28-cyrillic-regular.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+         url('./fonts/bitter-v28-cyrillic-regular.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+  
+body {
+    margin: 0;
+}
+
+.div-container {
     display: flex;
     flex-direction: column;
+    padding-top: 5em;
+    background-color: #EAEAEA;
 }
+
+header {
+    height: 3.5em;
+    display: flex;
+    justify-content: space-between;
+    background-color: #65B9E9;
+    position: fixed;
+    width: 100%;
+    align-items: center;
+}
+
+header>* {
+    margin: 0 .5em;
+}
+
+header>p {
+    font-family: 'Bitter';
+    font-size: 26px;
+}
+
+header>button {
+    font-family: 'PT Sans Narrow';
+    font-size: 20px;
+    font-weight: 700;
+    background-color: transparent;
+    border: none;
+    display: none;
+}
+
+header>button:hover {
+    cursor: pointer;
+}
+
+

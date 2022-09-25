@@ -55,11 +55,12 @@
     },
     "windows": [
       {
-        "fullscreen": false,
-        "height": 600,
+        "width": 600,
+        "height": 700,
         "resizable": true,
-        "title": "test",
-        "width": 800
+        "title": "Catphilosophy",
+        "center": true,
+        "decorations": true
       }
     ]
   }

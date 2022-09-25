@@ -14,7 +14,6 @@ function App() {
     const target = entries[0];
     if (target.isIntersecting) {
       setPostsPage((prev) => prev + 1);
-      console.log('intersected');
     }
   }, []);
 
@@ -35,7 +34,6 @@ function App() {
       await invoke('get_text_and_photos', { postCount: 3 })
         .then((res) => {
           const postArray = res;
-          console.log(res);
           if (loading) setContentFeed((prev) => [...prev, ...postArray]);
         })
         .catch((e) => console.log(e));
@@ -58,8 +56,14 @@ function App() {
 
   return (
     <div>
-      {contentFeedPosts}
-      <div ref={loader} />
+      <header>
+        <p>Котофилософия</p>
+        {/* <button type="button" onClick={handleExit}>Выйти</button> */}
+      </header>
+      <div className="div-container">
+        {contentFeedPosts}
+        <div ref={loader} />
+      </div>
     </div>
   );
 }
