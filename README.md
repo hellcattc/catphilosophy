@@ -1,9 +1,11 @@
 # Simple Tauri-React app, which implements parsing HTML pages on Rust, getting random cat photos & philosophers quotes, then displaying it on the page with infinite  scrolling.
 
-## To run dev version, type: 
+## ~~To run dev version, type:~~
 ```
 npm run tauri dev
 ```
+
+## Not working currently, forgot to switch branch 😧
 
 ## TODO'S 
 
