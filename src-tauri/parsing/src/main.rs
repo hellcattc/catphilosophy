@@ -1,7 +1,7 @@
 mod parser;
 
 use parser::get_text_data;
-use serde_json::to_vec_pretty;
+use serde_json::to_string_pretty;
 use std::{fs, env::current_dir, process};
 use utils::informed_input;
 
@@ -13,7 +13,7 @@ async fn main() {
     let formatted_current_dir = current_dir.to_str().unwrap();
     let current_path = r"\content\";
     let quotes = get_text_data().await;
-    let pretty = to_vec_pretty(&quotes).unwrap();
+    let pretty = to_string_pretty(&quotes).unwrap();
     let mut dest_dir = formatted_current_dir.to_owned() + current_path;
     println!("Parsed content will go to following path: {dest_dir}. Are you sure?");
     loop {
@@ -36,7 +36,7 @@ async fn main() {
     let res = fs::create_dir(dest_dir.clone());
     if let Err(e) = res {
         println!("Error creating directory: {e}");
-        dest_dir.truncate(dest_dir.len() - current_path.len());
+        dest_dir.truncate(dest_dir.len() - current_path.len() + 1);
     };
     let path = dest_dir.to_owned() + r"q.json";
     let res = fs::write(&path, pretty);
