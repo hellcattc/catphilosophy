@@ -35,8 +35,10 @@ async fn main() {
     };
     let res = fs::create_dir(dest_dir.clone());
     if let Err(e) = res {
-        println!("Error creating directory: {e}");
-        dest_dir.truncate(dest_dir.len() - current_path.len() + 1);
+        if !(e.raw_os_error().unwrap() == 183) {
+            println!("Error creating directory: {}", e.kind());
+            dest_dir.truncate(dest_dir.len() - current_path.len() + 1);
+        }
     };
     let path = dest_dir.to_owned() + r"q.json";
     let res = fs::write(&path, pretty);
