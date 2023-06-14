@@ -1,20 +1,19 @@
-#![cfg_attr(
-    all(not(debug_assertions), target_os = "windows"),
-    windows_subsystem = "windows"
-)]
+mod data;
 
-extern crate reqwest;
-
-use utils::Quote;
+use lazy_static::lazy_static;
 use serde_json::json;
-use std::string::String;
+use std::{string::String, cell::RefCell, borrow::BorrowMut};
+use data::QUOTES_DATA;
+use rand::{seq::SliceRandom, SeedableRng, rngs::StdRng};
+
+static mut RNG_SOURCE: Option<StdRng> = None; 
 
 #[tauri::command]
 async unsafe fn get_text_and_photos(post_count: usize) -> serde_json::Value {
-    let mut posts = Vec::new();
+    let mut posts = Vec::with_capacity(post_count);
     for i in 0..post_count {
-        posts[i] = Quote::NamelessQuote { quote: (String::from("Hello")) }
-    }
+        posts[i] = QUOTES_DATA.
+    };
     json!(posts)
 }
 
